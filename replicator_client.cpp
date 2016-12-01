@@ -47,7 +47,7 @@ class ReplicatorClient {
  public:
   ReplicatorClient(std::shared_ptr<Channel> channel)
       : stub_(ReplicatorService::NewStub(channel)) {}
-      
+
   int SendAddNode(const uint64_t node_id) {
     Node node;
     node.set_node_id(node_id);
@@ -56,7 +56,7 @@ class ReplicatorClient {
 
     ClientContext context;
 
-    Status status = stub_->SendAddNode(&context, node, &ack);
+    Status status = stub_->AddNode(&context, node, &ack);
 
     if (status.ok()) {
       return ack.status();
