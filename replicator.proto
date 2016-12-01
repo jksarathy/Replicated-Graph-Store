@@ -35,9 +35,9 @@ service ReplicatorService {
 }
 
 message Node {
-  uint64_t node_id = 1;
+  uint64 node_id = 1;
 }
 
 message Ack {
-  int status = 1;
+  int32 status = 1;
 }
