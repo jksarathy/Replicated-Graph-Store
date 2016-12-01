@@ -3,8 +3,18 @@
 #include "replicator_server.cpp"
 #include "replicator_client.cpp"
 
+#define I2_ADDRESS "104.197.8.216:50051"
+#define I3_ADDRESS "104.198.211.89:50051"
+
+typedef struct {
+  Graph *graph;
+  ReplicatorClient *client;
+} Data;
+
 static void add_node(struct mg_connection *nc, struct http_message *hm, void *user_data) {
-  Graph *graph = (Graph *) user_data;
+  Data *data = (Data *) user_data;
+  ReplicatorClient *client = data->client;
+  Graph *graph = data->graph;
 
   const char *json = hm->body.p;
   int json_len = (int) hm->body.len;
@@ -22,6 +32,13 @@ static void add_node(struct mg_connection *nc, struct http_message *hm, void *us
   tok = find_json_token(arr, "node_id");
   if (tok == NULL) {
     mg_printf(nc, "Could not find node_id in JSON\n");
+    free(arr);
+    return;
+  }
+
+  status = client->SendAddNode(strtoull(tok->ptr, NULL, 10));
+  if (status == RPC_FAILED) {
+    mg_printf(nc, "HTTP/1.1 500 RPC Failed\r\n");
     free(arr);
     return;
   }
@@ -47,7 +64,9 @@ static void add_node(struct mg_connection *nc, struct http_message *hm, void *us
 }
 
 static void add_edge(struct mg_connection *nc, struct http_message *hm, void *user_data) {
-  Graph *graph = (Graph *) user_data;
+  Data *data = (Data *) user_data;
+  ReplicatorClient *client = data->client;
+  Graph *graph = data->graph;
 
   const char *json = hm->body.p;
   int json_len = (int) hm->body.len;
@@ -98,7 +117,9 @@ static void add_edge(struct mg_connection *nc, struct http_message *hm, void *us
 }
 
 static void remove_node(struct mg_connection *nc, struct http_message *hm, void *user_data) {
-  Graph *graph = (Graph *) user_data;
+  Data *data = (Data *) user_data;
+  ReplicatorClient *client = data->client;
+  Graph *graph = data->graph;
 
   const char *json = hm->body.p;
   int json_len = (int) hm->body.len;
@@ -143,7 +164,9 @@ static void remove_node(struct mg_connection *nc, struct http_message *hm, void 
 }
 
 static void remove_edge(struct mg_connection *nc, struct http_message *hm, void *user_data) {
-  Graph *graph = (Graph *) user_data;
+  Data *data = (Data *) user_data;
+  ReplicatorClient *client = data->client;
+  Graph *graph = data->graph;
 
   const char *json = hm->body.p;
   int json_len = (int) hm->body.len;
@@ -195,7 +218,8 @@ static void remove_edge(struct mg_connection *nc, struct http_message *hm, void 
 }
 
 static void get_node(struct mg_connection *nc, struct http_message *hm, void *user_data) {
-  Graph *graph = (Graph *) user_data;
+  Data *data = (Data *) user_data;
+  Graph *graph = data->graph;
 
   const char *json = hm->body.p;
   int json_len = (int) hm->body.len;
@@ -256,7 +280,8 @@ static void get_node(struct mg_connection *nc, struct http_message *hm, void *us
 }
 
 static void get_edge(struct mg_connection *nc, struct http_message *hm, void *user_data) {
-  Graph *graph = (Graph *) user_data;
+  Data *data = (Data *) user_data;
+  Graph *graph = data->graph;
 
   const char *json = hm->body.p;
   int json_len = (int) hm->body.len;
@@ -326,7 +351,8 @@ static void get_edge(struct mg_connection *nc, struct http_message *hm, void *us
 }
 
 static void get_neighbors(struct mg_connection *nc, struct http_message *hm, void *user_data) {
-  Graph *graph = (Graph *) user_data;
+  Data *data = (Data *) user_data;
+  Graph *graph = data->graph;
 
   const char *json = hm->body.p;
   int json_len = (int) hm->body.len;
@@ -382,7 +408,8 @@ static void get_neighbors(struct mg_connection *nc, struct http_message *hm, voi
 }
 
 static void shortest_path(struct mg_connection *nc, struct http_message *hm, void *user_data) {
-  Graph *graph = (Graph *) user_data;
+  Data *data = (Data *) user_data;
+  Graph *graph = data->graph;
 
   const char *json = hm->body.p;
   int json_len = (int) hm->body.len;
@@ -493,9 +520,9 @@ int main(int argc, char *argv[]) {
 
   Graph *graph = new Graph();
 
-  //Define Client
+  // Define Client
   ReplicatorClient client(grpc::CreateChannel(
-      "localhost:50051", grpc::InsecureChannelCredentials()));
+      I2_ADDRESS, grpc::InsecureChannelCredentials()));
 
   // Start RPC Server
   pthread_t rpc_thread;
@@ -506,10 +533,14 @@ int main(int argc, char *argv[]) {
   }
 
   // HTTP Server
+  Data *data = (Data *) malloc(sizeof(Data));
+  data->graph = graph;
+  data->client = &client;
+
   struct mg_mgr mgr;
   struct mg_connection *nc;
 
-  mg_mgr_init(&mgr, (void *) graph);
+  mg_mgr_init(&mgr, (void *) data);
 
   nc = mg_bind(&mgr, argv[1], ev_handler);
 
@@ -531,6 +562,7 @@ int main(int argc, char *argv[]) {
     return 2;
   }
 
+  free(data);
   return 0;
 }
 
