@@ -1,4 +1,7 @@
-#include <pthread.h>
+extern "C" {
+    #include <pthread.h>
+}
+//#include <pthread.h>
 #include "mongoose.h"
 #include "replicator_server.cpp"
 #include "replicator_client.cpp"
