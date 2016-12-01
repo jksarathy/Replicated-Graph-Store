@@ -23,6 +23,8 @@ PROTOC = protoc
 GRPC_CPP_PLUGIN = grpc_cpp_plugin
 GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
 
+PROTOS_PATH = $(CURDIR)
+
 all: system-check cs426_graph_server
 
 cs426_graph_server: cs426_graph_server.c mongoose.c Graph.cpp replicator_client replicator_server
@@ -36,11 +38,11 @@ replicator_server: replicator.pb.o replicator.grpc.pb.o replicator_server.o
 
 .PRECIOUS: %.grpc.pb.cc
 %.grpc.pb.cc: %.proto
-	$(PROTOC) -I $^ --grpc_out=. --plugin=protoc-gen-grpc=$(GRPC_CPP_PLUGIN_PATH) $<
+	$(PROTOC) -I $PROTOS_PATH --grpc_out=. --plugin=protoc-gen-grpc=$(GRPC_CPP_PLUGIN_PATH) $<
 
 .PRECIOUS: %.pb.cc
 %.pb.cc: %.proto
-	$(PROTOC) -I $^ --cpp_out=. $<
+	$(PROTOC) -I $PROTOS_PATH --cpp_out=. $<
 
 clean:
 	rm -f *.o *.pb.cc *.pb.h replicator_client replicator_server 
