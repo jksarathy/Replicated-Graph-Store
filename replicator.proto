@@ -1,0 +1,14 @@
+syntax = "proto3";
+package replicator;
+
+service Replicator {
+  rpc AddNode(Node) returns (Status) {}
+}
+
+message Node {
+  uint64_t node_id = 1;
+}
+
+message Ack {
+  int status = 1;
+}
