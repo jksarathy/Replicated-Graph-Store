@@ -25,6 +25,8 @@ GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
 
 PROTOS_PATH = $(CURDIR)
 
+vpath %.proto $(PROTOS_PATH)
+
 all: system-check cs426_graph_server
 
 cs426_graph_server: cs426_graph_server.c mongoose.c Graph.cpp replicator_client replicator_server
