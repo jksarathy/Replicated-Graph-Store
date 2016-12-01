@@ -27,7 +27,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <iostream>
+//#include <iostream>
 #include <memory>
 #include <string>
 
@@ -61,8 +61,8 @@ class ReplicatorClient {
     if (status.ok()) {
       return ack.status();
     } else {
-      std::cout << status.error_code() << ": " << status.error_message()
-                << std::endl;
+//      std::cout << status.error_code() << ": " << status.error_message()
+//                << std::endl;
       return RPC_FAILED;
     }
   }
