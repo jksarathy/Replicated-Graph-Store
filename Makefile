@@ -1,6 +1,6 @@
 
- CC = g++
- CFLAGS = -std=gnu++11 -g -Wall
+# CC = g++
+# CFLAGS = -std=gnu++11 -g -Wall
 
 # all: cs426_graph_server
 
@@ -27,15 +27,15 @@ PROTOS_PATH = $(CURDIR)
 
 vpath %.proto $(PROTOS_PATH)
 
-all: system-check cs426_graph_server
+all: system-check replicator_client replicator_server cs426_graph_server 
 
-cs426_graph_server: cs426_graph_server.c mongoose.c Graph.cpp replicator_client.o replicator_server.o
-	$(CC) $(CFLAGS) -o $@ $^
+cs426_graph_server: cs426_graph_server.c mongoose.c Graph.cpp 
+	$(CXX) $(CXXFLAGS) -o $@ $^
 
-replicator_client.o: replicator.pb.o replicator.grpc.pb.o replicator_client.cpp
+replicator_client: replicator.pb.o replicator.grpc.pb.o replicator_client.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 
-replicator_server.o: replicator.pb.o replicator.grpc.pb.o replicator_server.cpp
+replicator_server: replicator.pb.o replicator.grpc.pb.o replicator_server.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 
 .PRECIOUS: %.grpc.pb.cc
