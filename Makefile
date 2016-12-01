@@ -57,7 +57,7 @@ $(OBJS): $(HDRS)
 
 # housekeeping
 clean:
-rm -f core $(EXE) *.o
+	rm -f core $(EXE) *.o
 
 #------------------------------------------------------
 
