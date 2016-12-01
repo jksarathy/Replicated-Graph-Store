@@ -32,10 +32,10 @@ all: system-check cs426_graph_server
 cs426_graph_server: cs426_graph_server.c mongoose.c Graph.cpp replicator_client replicator_server
 	$(CC) $(CFLAGS) -o $@ $^
 
-replicator_client: replicator.pb.cc replicator.grpc.pb.cc replicator_client.cpp
+replicator_client: replicator.pb.o replicator.grpc.pb.o replicator_client.cpp
 	$(CXX) $^ $(LDFLAGS) -o $@
 
-replicator_server: replicator.pb.cc replicator.grpc.pb.cc replicator_server.cpp
+replicator_server: replicator.pb.o replicator.grpc.pb.o replicator_server.cpp
 	$(CXX) $^ $(LDFLAGS) -o $@
 
 .PRECIOUS: %.grpc.pb.cc
