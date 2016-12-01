@@ -58,7 +58,7 @@ class ReplicatorImpl final : public ReplicatorService::Service {
 
   Status AddNode(ServerContext* context, const Node* node, Ack *ack) override {
     int status;
-    status = graph->addNode(node->node_id);
+    status = graph->addNode(node->node_id());
     ack->set_status(status);
     return Status::OK;
   }
