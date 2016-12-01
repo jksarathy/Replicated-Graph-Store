@@ -50,10 +50,10 @@ $(OBJS): $(HDRS)
 
 .PRECIOUS: %.grpc.pb.cc
 %.grpc.pb.cc: %.proto
-        $(PROTOC) -I $(PROTOS_PATH) --grpc_out=. --plugin=protoc-gen-grpc=$(GRPC_CPP_PLUGIN_PATH) $<
+	$(PROTOC) -I $(PROTOS_PATH) --grpc_out=. --plugin=protoc-gen-grpc=$(GRPC_CPP_PLUGIN_PATH) $<
 .PRECIOUS: %.pb.cc
 %.pb.cc: %.proto
-        $(PROTOC) -I $(PROTOS_PATH) --cpp_out=. $<
+	$(PROTOC) -I $(PROTOS_PATH) --cpp_out=. $<
 
 # housekeeping
 clean:
