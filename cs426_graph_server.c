@@ -533,7 +533,7 @@ int main(int argc, char *argv[]) {
   // RPC Server
   pthread_t rpc_thread;
 
-  if (pthread_create(&rpc_thread, NULL, RunServer, (void *) graph)) {
+  if (pthread_create(&rpc_thread, NULL, RunServer, graph)) {
     fprintf(stderr, "Error creating thread\n");
     return 1;
   }
@@ -561,7 +561,6 @@ int main(int argc, char *argv[]) {
   }
   mg_mgr_free(&mgr);
 
-  free(data);
   return 0;
 }
 
