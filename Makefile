@@ -1,6 +1,6 @@
 CXX = g++
 CXXFLAGS = -std=c++11 #-g3
-#CXXFLAGS = -std=gnu++11 -g -Wall
+CLAGS = -std=gnu++11 -g -Wall
 LDFLAGS += -L/usr/local/lib `pkg-config --libs grpc++ grpc`       \
 		   -L/usr/include/c++/4.8.4								  \
            -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed \
