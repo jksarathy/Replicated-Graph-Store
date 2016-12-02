@@ -92,11 +92,15 @@ class ReplicatorClient {
     Node node2;
     node2.set_node_id(node_b_id);
 
+    Edge edge;
+    edge.set_node1(node1);
+    edge.set_node2(node2);
+
     Ack ack;
 
     ClientContext context;
 
-    Status status = stub_->AddEdge(&context, node1, node2, &ack);
+    Status status = stub_->AddEdge(&context, edge, &ack);
 
     if (status.ok()) {
       return ack.status();
@@ -114,11 +118,15 @@ class ReplicatorClient {
     Node node2;
     node2.set_node_id(node_b_id);
 
+    Edge edge;
+    edge.set_node1(node1);
+    edge.set_node2(node2);
+
     Ack ack;
 
     ClientContext context;
 
-    Status status = stub_->RemoveEdge(&context, node1, node2, &ack);
+    Status status = stub_->RemoveEdge(&context, edge, &ack);
 
     if (status.ok()) {
       return ack.status();
