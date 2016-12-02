@@ -87,23 +87,25 @@ class ReplicatorClient {
   }
 
   int SendAddEdge(const uint64_t node_a_id, const uint64_t node_b_id) {
-    Node node_a;
-    node_a.set_node_id(node_a_id);
+    Node *node_a(new Node);
+    node_a->set_node_id(node_a_id);
 
-    Node node_b;
-    node_b.set_node_id(node_b_id);
+    Node *node_b(new Node);
+    node_b->set_node_id(node_b_id);
 
     std::cout << "SendAddEdge created nodes" << std::endl;
 
     Edge edge;
-    edge.set_allocated_node_a(node_a);
-    edge.set_allocated_node_b(node_b);
+    edge.set_allocated_node_a(node_a)
+    edge.set_allocated_node_b(node_b)
 
     std::cout << "SendAddEdge assigned nodes to edge" << std::endl;
 
     Ack ack;
 
     ClientContext context;
+
+    std::cout << "SendAddEdge calling AddEdge" << std::endl;
 
     Status status = stub_->AddEdge(&context, edge, &ack);
 
@@ -119,18 +121,17 @@ class ReplicatorClient {
   }
 
   int SendRemoveEdge(const uint64_t node_a_id, const uint64_t node_b_id) {
-    Node node_a;
-    node_a.set_node_id(node_a_id);
+    Node *node_a(new Node);
+    node_a->set_node_id(node_a_id);
 
-    Node node_b;
-    node_b.set_node_id(node_b_id);
+    Node *node_b(new Node);
+    node_b->set_node_id(node_b_id);
 
     Edge edge;
-    edge.set_allocated_node_a(node_a);
-    edge.set_allocated_node_b(node_b);
+    edge.set_allocated_node_a(node_a)
+    edge.set_allocated_node_b(node_b)
 
     Ack ack;
-
     ClientContext context;
 
     Status status = stub_->RemoveEdge(&context, edge, &ack);
