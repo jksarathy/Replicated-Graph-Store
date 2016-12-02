@@ -508,7 +508,7 @@ int main(int argc, char *argv[]) {
   // Start RPC Server
   pthread_t rpc_thread;
 
-  if (pthread_create(&rpc_thread, NULL, RunServer, graph)) {
+  if (pthread_create(&rpc_thread, NULL, RunServer, (void *) graph)) {
     fprintf(stderr, "Error creating thread\n");
     return 1;
   }
