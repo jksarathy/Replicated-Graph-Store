@@ -16,11 +16,11 @@
 #------------------------------------------------------
 
 CXX = g++
-CPPFLAGS += -I/usr/local/include -pthread
-CXXFLAGS += -std=c++11 
-LDFLAGS += -L/usr/local/lib `pkg-config --libs grpc++ grpc`       \
-           -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed \
-           -lprotobuf -lpthread -ldl -pthread
+CXXFLAGS = -std=c++11 #-g3
+LDFLAGS += -L/usr/local/lib `pkg-config --libs grpc++ grpc`       \
+           -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed \
+           -lprotobuf -lpthread -ldl
+
 PROTOC = protoc
 GRPC_CPP_PLUGIN = grpc_cpp_plugin
 GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
@@ -31,22 +31,16 @@ vpath %.proto $(PROTOS_PATH)
 
 EXE = cs426_graph_server
 
-# space-separated list of header files
 HDRS = mongoose.h Graph.h replicator.grpc.pb.h replicator.pb.h
 
-# space-separated list of source files
 SRCS = cs426_graph_server.c mongoose.c Graph.cpp 
 
-# automatically generated list of object files
 OBJS = $(SRCS:.c=.o) replicator.pb.o replicator.grpc.pb.o replicator_client.o replicator_server.o
 
-# default target
 $(EXE): $(OBJS) $(HDRS)
 	$(CXX) $^ $(CXXFLAGS) $(LDFLAGS) -o $@ #$(OBJS)
 
-# dependencies
 $(OBJS): $(HDRS)
-
 
 .PRECIOUS: %.grpc.pb.cc
 %.grpc.pb.cc: %.proto
@@ -55,7 +49,6 @@ $(OBJS): $(HDRS)
 %.pb.cc: %.proto
 	$(PROTOC) -I $(PROTOS_PATH) --cpp_out=. $<
 
-# housekeeping
 clean:
 	rm -f core $(EXE) *.o
 
