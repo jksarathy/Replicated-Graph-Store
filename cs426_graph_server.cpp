@@ -1,11 +1,12 @@
-#include "mongoose.h"
-#include "Graph.h"
-
 #include <pthread.h>
 #include <iostream>
 #include <memory>
+
 #include <grpc++/grpc++.h>
 #include "replicator.grpc.pb.h"
+
+#include "mongoose.h"
+#include "Graph.h"
 
 #define RPC_FAILED 500
 
