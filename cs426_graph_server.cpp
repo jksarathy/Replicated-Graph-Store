@@ -1,18 +1,90 @@
-extern "C" {
-    #include <pthread.h>
-}
-//#include <pthread.h>
 #include "mongoose.h"
-#include "replicator_server.cpp"
-#include "replicator_client.cpp"
+#include "Graph.h"
+
+#include <pthread.h>
+#include <iostream>
+#include <memory>
+#include <grpc++/grpc++.h>
+#include "replicator.grpc.pb.h"
+
+#define RPC_FAILED 500
+
+using grpc::Channel;
+using grpc::ClientContext;
+using grpc::Status;
+using grpc::Server;
+using grpc::ServerBuilder;
+using grpc::ServerContext;
+
+using replicator::Node;
+using replicator::Ack;
+using replicator::ReplicatorService;
 
 #define I2_ADDRESS "104.197.8.216:50051"
 #define I3_ADDRESS "104.198.211.89:50051"
+
+class ReplicatorClient {
+ public:
+  ReplicatorClient(std::shared_ptr<Channel> channel)
+      : stub_(ReplicatorService::NewStub(channel)) {}
+
+  int SendAddNode(const uint64_t node_id) {
+    Node node;
+    node.set_node_id(node_id);
+
+    Ack ack;
+
+    ClientContext context;
+
+    Status status = stub_->AddNode(&context, node, &ack);
+
+    if (status.ok()) {
+      return ack.status();
+    } else {
+      std::cout << status.error_code() << ": " << status.error_message()
+                << std::endl;
+      return RPC_FAILED;
+    }
+  }
+
+ private:
+  std::unique_ptr<ReplicatorService::Stub> stub_;
+};
+
+class ReplicatorImpl final : public ReplicatorService::Service {
+ public:
+  explicit ReplicatorImpl(Graph *g) {
+    graph = g;
+  }
+
+  Status AddNode(ServerContext* context, const Node* node, Ack *ack) override {
+    int status;
+    status = graph->addNode(node->node_id());
+    ack->set_status(status);
+    return Status::OK;
+  }
+
+ private:
+  Graph *graph;
+};
+
+void RunServer(Graph *g) {
+  std::string server_address("0.0.0.0:50051");
+  ReplicatorImpl service(g);
+
+  ServerBuilder builder;
+  builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+  builder.RegisterService(&service);
+  std::unique_ptr<Server> server(builder.BuildAndStart());
+  std::cout << "Server listening on " << server_address << std::endl;
+  server->Wait();
+}
 
 typedef struct {
   Graph *graph;
   ReplicatorClient *client;
 } Data;
+
 
 static void add_node(struct mg_connection *nc, struct http_message *hm, void *user_data) {
   Data *data = (Data *) user_data;
