@@ -1,42 +1,47 @@
-CXX = g++
-CXXFLAGS = -std=c++11 #-g3
-CLAGS = -std=gnu++11 -g -Wall
-LDFLAGS += -L/usr/local/lib `pkg-config --libs grpc++ grpc`       \
-           -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed \
-           -lprotobuf -lpthread -ldl
+# ---------------------------
+# Alex's, separate rpc
 
-PROTOC = protoc
-GRPC_CPP_PLUGIN = grpc_cpp_plugin
-GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
+# CXX = g++
+# CXXFLAGS = -std=c++11 #-g3
+# CLAGS = -std=gnu++11 -g -Wall
+# LDFLAGS += -L/usr/local/lib `pkg-config --libs grpc++ grpc`       \
+#            -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed \
+#            -lprotobuf -lpthread -ldl
 
-PROTOS_PATH = .
-INCLUDE_PATH = /usr/include/c++/4.8.4
+# PROTOC = protoc
+# GRPC_CPP_PLUGIN = grpc_cpp_plugin
+# GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
 
-vpath %.proto $(PROTOS_PATH)
+# PROTOS_PATH = .
+# INCLUDE_PATH = /usr/include/c++/4.8.4
 
-EXE = cs426_graph_server
+# vpath %.proto $(PROTOS_PATH)
 
-HDRS = mongoose.h Graph.h headers.h replicator.grpc.pb.h replicator.pb.h
+# EXE = cs426_graph_server
 
-SRCS = cs426_graph_server.cpp mongoose.c Graph.cpp 
+# HDRS = mongoose.h Graph.h headers.h replicator.grpc.pb.h replicator.pb.h
 
-OBJS = $(SRCS:.c=.o) replicator.pb.o replicator.grpc.pb.o replicator_client.o replicator_server.o
+# SRCS = cs426_graph_server.cpp mongoose.c Graph.cpp 
 
-$(EXE): $(OBJS) $(HDRS)
-	$(CXX) $^ $(CXXFLAGS) $(LDFLAGS) -o $@ #$(OBJS)
+# OBJS = $(SRCS:.c=.o) replicator.pb.o replicator.grpc.pb.o replicator_client.o replicator_server.o
 
-$(OBJS): $(HDRS)
+# $(EXE): $(OBJS) $(HDRS)
+# 	$(CXX) $^ $(CXXFLAGS) $(LDFLAGS) -o $@ #$(OBJS)
 
-.PRECIOUS: %.grpc.pb.cc
-%.grpc.pb.cc: %.proto
-	$(PROTOC) -I $(PROTOS_PATH) --grpc_out=. --plugin=protoc-gen-grpc=$(GRPC_CPP_PLUGIN_PATH) $<
-.PRECIOUS: %.pb.cc
-%.pb.cc: %.proto
-	$(PROTOC) -I $(PROTOS_PATH) --cpp_out=. $<
+# $(OBJS): $(HDRS)
 
-clean:
-	rm -f core $(EXE) *.o
+# .PRECIOUS: %.grpc.pb.cc
+# %.grpc.pb.cc: %.proto
+# 	$(PROTOC) -I $(PROTOS_PATH) --grpc_out=. --plugin=protoc-gen-grpc=$(GRPC_CPP_PLUGIN_PATH) $<
+# .PRECIOUS: %.pb.cc
+# %.pb.cc: %.proto
+# 	$(PROTOC) -I $(PROTOS_PATH) --cpp_out=. $<
 
+# clean:
+# 	rm -f core $(EXE) *.o
+
+#----------------------------------------
+# Alex's, combined rpc
 
 # CXX = g++
 # CXXFLAGS = -std=c++11 #-g3
@@ -75,6 +80,9 @@ clean:
 # clean:
 # 	rm -f core $(EXE) *.o
 
+# -------------------------------------------
+# Mine, first
+
 # CC = g++
 # CFLAGS = -std=gnu++11 -g -Wall
 
@@ -108,4 +116,38 @@ clean:
 
 # clean:
 # 	rm -f core $(EXE) *.o
+
+# ----------------------------------------------
+# Bo's 
+
+CC = g++
+CFLAGS = -std=g++11 -g -Wall
+
+LDFLAGS += -L/usr/local/lib `pkg-config --libs grpc++ grpc`       \
+           -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed \
+           -lprotobuf -lpthread -ldl
+
+PROTOC = protoc
+GRPC_CPP_PLUGIN = grpc_cpp_plugin
+GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
+
+PROTOS_PATH = .
+
+vpath %.proto $(PROTOS_PATH)
+
+all: cs426_graph_server
+
+cs426_graph_server: cs426_graph_server.c mongoose.c Graph.cpp 
+	$(CC) $(LDFLAGS) -std=c++0x -pthread -o cs426_graph_server
+
+.PRECIOUS: %.grpc.pb.cc
+%.grpc.pb.cc: %.proto
+	$(PROTOC) -I $(PROTOS_PATH) --grpc_out=. --plugin=protoc-gen-grpc=$(GRPC_CPP_PLUGIN_PATH) $<
+.PRECIOUS: %.pb.cc
+%.pb.cc: %.proto
+	$(PROTOC) -I $(PROTOS_PATH) --cpp_out=. $<
+
+clean:
+	rm -f core $cs426_graph_server *.o
+
 
