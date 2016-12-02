@@ -12,7 +12,6 @@ PROTOS_PATH = .
 INCLUDE_PATH = /usr/include/c++/4.84
 
 vpath %.proto $(PROTOS_PATH)
-vpath % $(INCLUDE_PATH)
 
 EXE = cs426_graph_server
 
@@ -23,7 +22,7 @@ SRCS = cs426_graph_server.c mongoose.c Graph.cpp
 OBJS = $(SRCS:.c=.o) replicator.pb.o replicator.grpc.pb.o replicator_client.o replicator_server.o
 
 $(EXE): $(OBJS) $(HDRS)
-	$(CXX) $^ $(CXXFLAGS) $(LDFLAGS) -o $@ #$(OBJS)
+	$(CXX) -I $(INCLUDE_PATH) $^ $(CXXFLAGS) $(LDFLAGS) -o $@ #$(OBJS)
 
 $(OBJS): $(HDRS)
 
