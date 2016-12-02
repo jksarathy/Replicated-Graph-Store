@@ -1,6 +1,10 @@
 #include "mongoose.h"
 #include "headers.h"
 
+int head;
+int tail;
+char *ip_next;
+
 typedef struct {
   Graph *graph;
 } Data;
@@ -30,12 +34,14 @@ static void add_node(struct mg_connection *nc, struct http_message *hm, void *us
     return;
   }
 
-  status = propogate(ADD_NODE, strtoull(tok->ptr, NULL, 10), 0);
-  if (status == RPC_FAILED) {
-    mg_printf(nc, "HTTP/1.1 500 RPC Failed\r\n");
-    fprintf(stderr, "add_node: %.*s = %d\n", tok->len, tok->ptr, status);
-    free(arr);
-    return;
+  if (!tail) {
+    status = propogate(ADD_NODE, strtoull(tok->ptr, NULL, 10), 0);
+    if (status == RPC_FAILED) {
+      mg_printf(nc, "HTTP/1.1 500 RPC Failed\r\n");
+      fprintf(stderr, "add_node: %.*s = %d\n", tok->len, tok->ptr, status);
+      free(arr);
+      return;
+    }
   }
 
   status = graph->addNode(strtoull(tok->ptr, NULL, 10)); 
@@ -60,22 +66,14 @@ static void add_node(struct mg_connection *nc, struct http_message *hm, void *us
 
 static void add_edge(struct mg_connection *nc, struct http_message *hm, void *user_data) {
 
-  fprintf(stderr, "Add_edge: entered\n");
-
   Data *data = (Data *) user_data;
   Graph *graph = data->graph;
-
-  fprintf(stderr, "Add_edge: pulled out graph\n");
-
 
   const char *json = hm->body.p;
   int json_len = (int) hm->body.len;
 
   struct json_token *arr, *tok, *tok1;
   int status = 0;
-
-  fprintf(stderr, "Add_edge: about to parse\n");
-
 
   arr = parse_json2(json, json_len);
   if (arr == NULL) {
@@ -84,18 +82,12 @@ static void add_edge(struct mg_connection *nc, struct http_message *hm, void *us
     return;
   }
 
-  fprintf(stderr, "Add_edge: parsed json\n");
-
-
   tok = find_json_token(arr, "node_a_id");
   if (tok == NULL) {
     mg_printf(nc, "Could not find node_a_id in JSON\n");
     free(arr);
     return;
   }
-
-  fprintf(stderr, "Add_edge: found json\n");
-
 
   tok1 = find_json_token(arr, "node_b_id");
   if (tok1 == NULL) {
@@ -104,22 +96,18 @@ static void add_edge(struct mg_connection *nc, struct http_message *hm, void *us
     return;
   }
 
-  fprintf(stderr, "Add_edge: found json2\n");
-
-
-  status = propogate(ADD_EDGE, strtoull(tok->ptr, NULL, 10), strtoull(tok1->ptr, NULL, 10));
-
-  fprintf(stderr, "Add_edge: called propogate\n");
-
-  if (status == RPC_FAILED) {
-    mg_printf(nc, "HTTP/1.1 500 RPC Failed\r\n");
-    fprintf(stderr, "add_edge: %.*s, %.*s = %d\n", tok->len, tok->ptr, tok1->len, tok1->ptr, status);
-    free(arr);
-    return;
+  if (!tail) {
+    fprintf(stderr, "Add_edge: not tail, about to propogate \n");
+    status = propogate(ADD_EDGE, strtoull(tok->ptr, NULL, 10), strtoull(tok1->ptr, NULL, 10));
+    if (status == RPC_FAILED) {
+      mg_printf(nc, "HTTP/1.1 500 RPC Failed\r\n");
+      fprintf(stderr, "add_edge: %.*s, %.*s = %d\n", tok->len, tok->ptr, tok1->len, tok1->ptr, status);
+      free(arr);
+      return;
+    }
   }
 
   fprintf(stderr, "Add_edge: propogate succeeded\n");
-
 
   graph->addEdge(strtoull(tok->ptr, NULL, 10), strtoull(tok1->ptr, NULL, 10)); 
 
@@ -169,12 +157,15 @@ static void remove_node(struct mg_connection *nc, struct http_message *hm, void 
     return;
   }
 
-  status = propogate(REMOVE_NODE, strtoull(tok->ptr, NULL, 10), 0);
-  if (status == RPC_FAILED) {
-    mg_printf(nc, "HTTP/1.1 500 RPC Failed\r\n");
-    fprintf(stderr, "remove_node: %.*s = %d\n", tok->len, tok->ptr, status);
-    free(arr);
-    return;
+  if (!tail) {
+    fprintf(stderr, "Remove node: not tail, about to propogate\n");
+    status = propogate(REMOVE_NODE, strtoull(tok->ptr, NULL, 10), 0);
+    if (status == RPC_FAILED) {
+      mg_printf(nc, "HTTP/1.1 500 RPC Failed\r\n");
+      fprintf(stderr, "remove_node: %.*s = %d\n", tok->len, tok->ptr, status);
+      free(arr);
+      return;
+    }
   }
 
   status = graph->removeNode(strtoull(tok->ptr, NULL, 10)); 
@@ -230,12 +221,15 @@ static void remove_edge(struct mg_connection *nc, struct http_message *hm, void 
     return;
   }
 
-  status = propogate(REMOVE_EDGE, strtoull(tok->ptr, NULL, 10), strtoull(tok1->ptr, NULL, 10));
-  if (status == RPC_FAILED) {
-    mg_printf(nc, "HTTP/1.1 500 RPC Failed\r\n");
-    fprintf(stderr, "remove_edge: %.*s, %.*s = %d\n", tok->len, tok->ptr, tok1->len, tok1->ptr, status);
-    free(arr);
-    return;
+  if (!tail) {
+    fprintf(stderr, "Remove edge: not tail, about to propogate\n");
+    status = propogate(REMOVE_EDGE, strtoull(tok->ptr, NULL, 10), strtoull(tok1->ptr, NULL, 10));
+    if (status == RPC_FAILED) {
+      mg_printf(nc, "HTTP/1.1 500 RPC Failed\r\n");
+      fprintf(stderr, "remove_edge: %.*s, %.*s = %d\n", tok->len, tok->ptr, tok1->len, tok1->ptr, status);
+      free(arr);
+      return;
+    }
   }
 
   status = graph->removeEdge(strtoull(tok->ptr, NULL, 10), strtoull(tok1->ptr, NULL, 10)); 
@@ -295,7 +289,7 @@ static void get_node(struct mg_connection *nc, struct http_message *hm, void *us
   in_graph = std::get<1>(result);
 
   //DEBUG
-  fprintf(stderr, "get_node: %s = %d\n", tok->ptr, status);
+  fprintf(stderr, "get_node: %.*s = %d\n", tok->len, tok->ptr, status);
 
   if (in_graph == true) {
     json_buf_size = json_emit(buf, sizeof(buf), "{s : T}", "in_graph");
@@ -364,7 +358,7 @@ static void get_edge(struct mg_connection *nc, struct http_message *hm, void *us
   in_graph = std::get<1>(result); 
 
   //DEBUG
-  fprintf(stderr, "get_edge: %s, %s = %d\n", tok->ptr, tok1->ptr, status);
+  fprintf(stderr, "get_edge: %.*s, %.*s = %d\n", tok->len, tok->ptr, tok1->len, tok1->ptr, status);
 
   if (in_graph == true) {
     json_buf_size = json_emit(buf, sizeof(buf), "{s : T}", "in_graph");
@@ -429,7 +423,7 @@ static void get_neighbors(struct mg_connection *nc, struct http_message *hm, voi
   neighbor_list = std::get<1>(result);
 
   //DEBUG
-  fprintf(stderr, "get_neighbors: %s = %d\n", tok->ptr, status);
+  fprintf(stderr, "get_neighbors: %.*s = %d\n", tok->len, tok->ptr, status);
 
   json_buf_size = json_emit(buf, sizeof(buf), "{s : V, s : [S]}", 
                             "node_id", tok->ptr, tok->len, "neighbors", neighbor_list.c_str());
@@ -493,7 +487,7 @@ static void shortest_path(struct mg_connection *nc, struct http_message *hm, voi
   distance = std::get<1>(result);
 
   //DEBUG
-  fprintf(stderr, "shortest_path: %s, %s = %d\n", tok->ptr, tok1->ptr, status);
+  fprintf(stderr, "shortest_path: %.*s, %.*s = %d\n", tok->len, tok->ptr, tok1->len, tok1->ptr, status);
 
   snprintf(distance_buf, sizeof(distance_buf), "%lu", distance);
 
@@ -550,11 +544,45 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 
 int main(int argc, char *argv[]) {
 
-  if (argc != 2) {
-    printf("Incorrect number of arguments\n");
+  // Parse arguments
+  char *port;
+  int bflag = 0;
+  int c;
+
+  while ((c = getopt (argc, argv, "b:")) != -1)
+    switch (c)
+      {
+      case 'b':
+        bflag = 1;
+        ip_next = optarg
+        break;
+      case '?':
+        if (optopt == 'b')
+          fprintf(stderr, "Option -%c requires an argument. \n", optopt);
+        else if (isprint (optopt))
+          fprintf(stderr, "Unknown option '-%c'.\n", optopt);
+        else
+          fprintf (stderr,
+                   "Unknown option character `\\x%x'.\n",
+                   optopt);
+        return 1;
+      default:
+        abort ();
+      }
+
+  if (argc - optind != 1) {
+    fprintf(stderr, "Incorrect number of arguments\n");
     return 1;
   }
+  port = argv[optind];
 
+  // Check if tail
+  if (bflag == 0) {
+    fprintf(stderr, "I am the tail! \n");
+    tail = 1;
+  }
+
+  // Create new graph
   Graph *graph = new Graph();
 
   // RPC Server
@@ -574,7 +602,7 @@ int main(int argc, char *argv[]) {
 
   mg_mgr_init(&mgr, (void *) data);
 
-  nc = mg_bind(&mgr, argv[1], ev_handler);
+  nc = mg_bind(&mgr, port, ev_handler);
 
   if (nc == NULL) {
     printf("Failed to create listener\n");
@@ -587,6 +615,9 @@ int main(int argc, char *argv[]) {
     mg_mgr_poll(&mgr, 1000);
   }
   mg_mgr_free(&mgr);
+
+  // Free 
+  free(data)
 
   return 0;
 }

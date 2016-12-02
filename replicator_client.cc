@@ -93,23 +93,14 @@ class ReplicatorClient {
     Node *node_b(new Node);
     node_b->set_node_id(node_b_id);
 
-    std::cout << "SendAddEdge created nodes" << std::endl;
-
     Edge edge;
     edge.set_allocated_node_a(node_a);
     edge.set_allocated_node_b(node_b);
 
-    std::cout << "SendAddEdge assigned nodes to edge" << std::endl;
-
     Ack ack;
-
     ClientContext context;
 
-    std::cout << "SendAddEdge calling AddEdge" << std::endl;
-
     Status status = stub_->AddEdge(&context, edge, &ack);
-
-    std::cout << "SendAddEdge called AddEdge" << std::endl;
 
     if (status.ok()) {
       return ack.status();
@@ -152,20 +143,25 @@ class ReplicatorClient {
 int propogate(const int op, const uint64_t node_a_id, const uint64_t node_b_id) {
   int status = 0;
 
-  std::cout << "Propogate entered" << std::endl;
+  std::string server_ip = ip_next;
+  std::string server_address(server_ip + ":" + RPC_PORT);
+
+  std::cout << "Propogate created server address" << server_address << std::endl;
 
   ReplicatorClient client(grpc::CreateChannel(
-      I2_ADDRESS, grpc::InsecureChannelCredentials()));
+      server_address, grpc::InsecureChannelCredentials()));
 
   std::cout << "Propogate created client" << std::endl;
 
   switch (op) {
     case ADD_NODE: {
+      std::cout << "Client calling: ADD_NODE" << std::endl;
       status = client.SendAddNode(node_a_id);
       std::cout << "Client received: ADD_NODE" << std::endl;
       break;
     }
     case REMOVE_NODE: {
+      std::cout << "Client calling: REMOVE_NODE" << std::endl;
       status = client.SendRemoveNode(node_a_id);
       std::cout << "Client received: REMOVE_NODE" << std::endl;
       break;
@@ -177,6 +173,7 @@ int propogate(const int op, const uint64_t node_a_id, const uint64_t node_b_id) 
       break;
     }
     case REMOVE_EDGE: {
+      std::cout << "Client calling: REMOVE_EDGE" << std::endl;
       status = client.SendRemoveEdge(node_a_id, node_b_id);
       std::cout << "Client received: REMOVE_EDGE" << std::endl;
       break;
