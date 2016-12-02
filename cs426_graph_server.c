@@ -107,7 +107,7 @@ static void add_edge(struct mg_connection *nc, struct http_message *hm, void *us
     }
   }
 
-  graph->addEdge(strtoull(tok->ptr, NULL, 10), strtoull(tok1->ptr, NULL, 10)); 
+  status = graph->addEdge(strtoull(tok->ptr, NULL, 10), strtoull(tok1->ptr, NULL, 10)); 
 
   fprintf(stderr, "Add_edge: added edge to graph\n");
 
