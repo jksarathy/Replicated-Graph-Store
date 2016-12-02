@@ -62,8 +62,8 @@ class ReplicatorClient {
     if (status.ok()) {
       return ack.status();
     } else {
-//      std::cout << status.error_code() << ": " << status.error_message()
-//                << std::endl;
+      std::cout << status.error_code() << ": " << status.error_message()
+                << std::endl;
       return RPC_FAILED;
     }
   }
@@ -85,6 +85,8 @@ int Propogate(const int op, const uint64_t node_a_id, const uint64_t node_b_id) 
       break;
     }
   }
+
+  std::cout << "Client call status: " << status << std::endl;
 
   return status;
 }

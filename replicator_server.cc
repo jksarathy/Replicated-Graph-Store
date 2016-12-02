@@ -51,6 +51,8 @@ class ReplicatorImpl final : public ReplicatorService::Service {
   }
 
   Status AddNode(ServerContext* context, const Node* node, Ack *ack) override {
+    std::cout << "Server adding node: " << node->node_id() << std::endl;
+
     int status;
     status = graph->addNode(node->node_id());
     ack->set_status(status);
@@ -69,6 +71,6 @@ void *RunServer(void *v) {
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
   builder.RegisterService(&service);
   std::unique_ptr<Server> server(builder.BuildAndStart());
-//  std::cout << "Server listening on " << server_address << std::endl;
+  std::cout << "Server listening on " << server_address << std::endl;
   server->Wait();
 }

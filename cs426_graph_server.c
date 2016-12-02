@@ -505,7 +505,7 @@ int main(int argc, char *argv[]) {
 
   Graph *graph = new Graph();
 
-  // Start RPC Server
+  // RPC Server
   pthread_t rpc_thread;
 
   if (pthread_create(&rpc_thread, NULL, RunServer, (void *) graph)) {
