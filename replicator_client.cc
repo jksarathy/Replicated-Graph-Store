@@ -94,8 +94,8 @@ class ReplicatorClient {
     node_b.set_node_id(node_b_id);
 
     Edge edge;
-    edge.set_node_a(node_a);
-    edge.set_node_b(node_b);
+    edge.set_allocated_node_a(&node_a);
+    edge.set_allocated_node_b(&node_b);
 
     Ack ack;
 
@@ -120,8 +120,8 @@ class ReplicatorClient {
     node_b.set_node_id(node_b_id);
 
     Edge edge;
-    edge.set_node_a(node_a);
-    edge.set_node_b(node_b);
+    edge.set_allocated_node_a(&node_a);
+    edge.set_allocated_node_b(&node_b);
 
     Ack ack;
 
