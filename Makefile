@@ -37,7 +37,6 @@
 
 
 CXX = g++
-CFLAGS = -std=gnu++11 -g -Wall
 CXXFLAGS = -std=c++11 #-g3
 LDFLAGS += -L/usr/local/lib `pkg-config --libs grpc++ grpc`       \
            -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed \
