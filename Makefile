@@ -149,6 +149,6 @@ cs426_graph_server: cs426_graph_server.c mongoose.c Graph.cpp replicator_client.
 	$(PROTOC) -I $(PROTOS_PATH) --cpp_out=. $<
 
 clean:
-	rm -f core $cs426_graph_server *.o
+	rm -f *.o *.pb.cc *.pb.h cs426_graph_server
 
 
