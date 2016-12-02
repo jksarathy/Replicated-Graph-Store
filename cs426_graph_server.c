@@ -111,7 +111,6 @@ static void add_edge(struct mg_connection *nc, struct http_message *hm, void *us
 
 static void remove_node(struct mg_connection *nc, struct http_message *hm, void *user_data) {
   Data *data = (Data *) user_data;
-  ReplicatorClient *client = data->client;
   Graph *graph = data->graph;
 
   const char *json = hm->body.p;
@@ -158,7 +157,6 @@ static void remove_node(struct mg_connection *nc, struct http_message *hm, void 
 
 static void remove_edge(struct mg_connection *nc, struct http_message *hm, void *user_data) {
   Data *data = (Data *) user_data;
-  ReplicatorClient *client = data->client;
   Graph *graph = data->graph;
 
   const char *json = hm->body.p;
