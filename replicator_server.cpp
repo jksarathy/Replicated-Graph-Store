@@ -28,7 +28,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //#include <iostream>
-#include <memory>
+#include <memory.h>
 #include <string>
 
 #include <grpc/grpc.h>
