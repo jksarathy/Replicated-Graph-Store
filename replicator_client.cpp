@@ -28,8 +28,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //#include <iostream>
-#include <memory>
-#include <string>
+#include <memory.h>
+#include <string.h>
 
 #include <grpc++/grpc++.h>
 #include "replicator.grpc.pb.h"

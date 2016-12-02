@@ -29,7 +29,7 @@
 
 //#include <iostream>
 #include <memory.h>
-#include <string>
+#include <string.h>
 
 #include <grpc/grpc.h>
 #include <grpc++/server.h>
