@@ -1,7 +1,7 @@
 #include <pthread.h>
 #include "mongoose.h"
-#include "replicator_server.cpp"
-#include "replicator_client.cpp"
+//#include "replicator_server.cpp"
+//#include "replicator_client.cpp"
 
 #define I2_ADDRESS "104.197.8.216:50051"
 #define I3_ADDRESS "104.198.211.89:50051"
