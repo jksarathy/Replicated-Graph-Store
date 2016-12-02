@@ -1,29 +1,28 @@
 #include <pthread.h>
-#include "mongoose.h"
-#include "Graph.h"
-
-#define I2_ADDRESS "104.197.8.216:50051"
-#define I3_ADDRESS "104.198.211.89:50051"
-
 #include <iostream>
 #include <memory>
 
 #include <grpc++/grpc++.h>
-
 #include "replicator.grpc.pb.h"
+
+#include "mongoose.h"
+#include "Graph.h"
 
 #define RPC_FAILED 500
 
 using grpc::Channel;
 using grpc::ClientContext;
 using grpc::Status;
+using grpc::Server;
+using grpc::ServerBuilder;
+using grpc::ServerContext;
+
 using replicator::Node;
 using replicator::Ack;
 using replicator::ReplicatorService;
 
-using grpc::Server;
-using grpc::ServerBuilder;
-using grpc::ServerContext;
+#define I2_ADDRESS "104.197.8.216:50051"
+#define I3_ADDRESS "104.198.211.89:50051"
 
 class ReplicatorClient {
  public:
