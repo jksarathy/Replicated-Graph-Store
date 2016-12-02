@@ -2,7 +2,7 @@
 extern "C" {
 #endif
 
-#include </usr/include/c++/4.8.4/map>
+#include <map>
 #include <set>
 #include <list>
 #include <vector>

@@ -1,7 +1,8 @@
 CXX = g++
-#CXXFLAGS = -std=c++11 #-g3
-CXXFLAGS = -std=gnu++11 -g -Wall
+CXXFLAGS = -std=c++11 #-g3
+#CXXFLAGS = -std=gnu++11 -g -Wall
 LDFLAGS += -L/usr/local/lib `pkg-config --libs grpc++ grpc`       \
+		   -L/usr/include/c++/4.8.4								  \
            -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed \
            -lprotobuf -lpthread -ldl
 
@@ -10,7 +11,7 @@ GRPC_CPP_PLUGIN = grpc_cpp_plugin
 GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
 
 PROTOS_PATH = .
-INCLUDE_PATH = /usr/include/c++/4.84
+INCLUDE_PATH = /usr/include/c++/4.8.4
 
 vpath %.proto $(PROTOS_PATH)
 
@@ -23,7 +24,7 @@ SRCS = cs426_graph_server.c mongoose.c Graph.cpp
 OBJS = $(SRCS:.c=.o) replicator.pb.o replicator.grpc.pb.o replicator_client.o replicator_server.o
 
 $(EXE): $(OBJS) $(HDRS)
-	$(CXX) $^ $(CXXFLAGS) $(LDFLAGS) -o $@ #$(OBJS)
+	$(CXX) -I $(INCLUDE_PATH) $^ $(CXXFLAGS) $(LDFLAGS) -o $@ #$(OBJS)
 
 $(OBJS): $(HDRS)
 
