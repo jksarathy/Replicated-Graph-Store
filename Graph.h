@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <map>
 #include <set>
 #include <list>
@@ -9,11 +13,7 @@
 #define EXISTS 204
 #define ERROR 400 
 
-/*
-#ifdef __cplusplus
-extern "C" {
-#endif
-*/
+
 	class Graph {
 	private:
 		std::map<uint64_t, std::set<uint64_t> > my_graph;
@@ -32,8 +32,8 @@ extern "C" {
 		std::pair<int, uint64_t> shortestPath(uint64_t node_a_id, uint64_t node_b_id);     
 	};
 
-/*
+
 #ifdef __cplusplus
 }
 #endif
-*/
+
