@@ -61,9 +61,9 @@ class ReplicatorImpl final : public ReplicatorService::Service {
   Graph *graph;
 };
 
-void RunServer(Graph *g) {
+void *RunServer(void *v) {
   std::string server_address("0.0.0.0:50051");
-  ReplicatorImpl service(g);
+  ReplicatorImpl service((Graph *) v);
 
   ServerBuilder builder;
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
