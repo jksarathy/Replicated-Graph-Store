@@ -55,6 +55,16 @@ class ReplicatorImpl final : public ReplicatorService::Service {
     std::cout << "Server adding node: " << node->node_id() << std::endl;
 
     int status;
+
+    if (!tail) {
+      std::cout << "Server not tail, propogating add node" << std::endl;
+      status = propogate(ADD_NODE, node->node_id(), 0);
+      if (status == RPC_FAILED) {
+        ack->set_status(status);
+        return Status::OK;
+      }
+    }
+
     status = graph->addNode(node->node_id());
     ack->set_status(status);
     return Status::OK;
@@ -64,6 +74,16 @@ class ReplicatorImpl final : public ReplicatorService::Service {
     std::cout << "Server removing node: " << node->node_id() << std::endl;
 
     int status;
+
+    if (!tail) {
+      std::cout << "Server not tail, propogating remove node" << std::endl;
+      status = propogate(REMOVE_NODE, node->node_id(), 0);
+      if (status == RPC_FAILED) {
+        ack->set_status(status);
+        return Status::OK;
+      }
+    }
+
     status = graph->removeNode(node->node_id());
     ack->set_status(status);
     return Status::OK;
@@ -73,6 +93,16 @@ class ReplicatorImpl final : public ReplicatorService::Service {
     std::cout << "Server adding edge: " << edge->node_a().node_id() << ", " << edge->node_b().node_id() << std::endl;
 
     int status;
+
+    if (!tail) {
+      std::cout << "Server not tail, propogating add edge" << std::endl;
+      status = propogate(ADD_EDGE, edge->node_a().node_id(), edge->node_b().node_id());
+      if (status == RPC_FAILED) {
+        ack->set_status(status);
+        return Status::OK;
+      }
+    }
+
     status = graph->addEdge(edge->node_a().node_id(), edge->node_b().node_id());
     ack->set_status(status);
     return Status::OK;
@@ -82,6 +112,16 @@ class ReplicatorImpl final : public ReplicatorService::Service {
     std::cout << "Server removing edge: " << edge->node_a().node_id() << ", " << edge->node_b().node_id() << std::endl;
 
     int status;
+
+    if (!tail) {
+      std::cout << "Server not tail, propogating remove edge" << std::endl;
+      status = propogate(REMOVE_EDGE, edge->node_a().node_id(), edge->node_b().node_id());
+      if (status == RPC_FAILED) {
+        ack->set_status(status);
+        return Status::OK;
+      }
+    }
+
     status = graph->removeEdge(edge->node_a().node_id(), edge->node_b().node_id());
     ack->set_status(status);
     return Status::OK;

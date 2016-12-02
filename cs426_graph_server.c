@@ -107,12 +107,9 @@ static void add_edge(struct mg_connection *nc, struct http_message *hm, void *us
     }
   }
 
-  fprintf(stderr, "Add_edge: propogate succeeded\n");
-
   graph->addEdge(strtoull(tok->ptr, NULL, 10), strtoull(tok1->ptr, NULL, 10)); 
 
   fprintf(stderr, "Add_edge: added edge to graph\n");
-
 
   //DEBUG
   fprintf(stderr, "add_edge: %.*s, %.*s = %d\n", tok->len, tok->ptr, tok1->len, tok1->ptr, status); 

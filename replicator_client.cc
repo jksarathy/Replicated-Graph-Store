@@ -143,10 +143,15 @@ class ReplicatorClient {
 int propogate(const int op, const uint64_t node_a_id, const uint64_t node_b_id) {
   int status = 0;
 
+  if (ip_next == NULL) {
+    std::cout << "Error: ip_next undefined" << std::endl;
+    return RPC_FAILED;
+  }
+
   std::string server_ip = ip_next;
   std::string server_address(server_ip + ":" + RPC_PORT);
 
-  std::cout << "Propogate created server address" << server_address << std::endl;
+  std::cout << "Propogate created server address " << server_address << std::endl;
 
   ReplicatorClient client(grpc::CreateChannel(
       server_address, grpc::InsecureChannelCredentials()));
