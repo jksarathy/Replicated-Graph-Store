@@ -32,6 +32,7 @@
 #include <string.h>
 
 #include <grpc++/grpc++.h>
+
 #include "replicator.grpc.pb.h"
 
 #define RPC_FAILED 500

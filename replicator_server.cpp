@@ -31,20 +31,14 @@
 #include <memory.h>
 #include <string.h>
 
-#include <grpc/grpc.h>
-#include <grpc++/server.h>
-#include <grpc++/server_builder.h>
-#include <grpc++/server_context.h>
-#include <grpc++/security/server_credentials.h>
+#include <grpc++/grpc++.h>
+
 #include "Graph.h"
 #include "replicator.grpc.pb.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
-using grpc::ServerReader;
-using grpc::ServerReaderWriter;
-using grpc::ServerWriter;
 using grpc::Status;
 using replicator::Node;
 using replicator::Ack;
