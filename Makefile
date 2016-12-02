@@ -138,7 +138,7 @@ vpath %.proto $(PROTOS_PATH)
 
 all: cs426_graph_server
 
-cs426_graph_server: cs426_graph_server.c mongoose.c Graph.cpp replicator_client.cc replicator_server.cc
+cs426_graph_server: cs426_graph_server.c mongoose.c Graph.cpp replicator_client.cc replicator_server.cc replicator.pb.cc replicator.grpc.pb.cc
 	g++ $^ -L/usr/local/lib `pkg-config --libs grpc++ grpc` -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed -lprotobuf -lpthread -ldl -std=c++0x -pthread -o cs426_graph_server
 
 .PRECIOUS: %.grpc.pb.cc
