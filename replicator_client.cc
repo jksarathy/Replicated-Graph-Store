@@ -31,8 +31,8 @@
 #include <memory>
 #include <string>
 
+#include "headers.h"
 #include <grpc++/grpc++.h>
-
 #include "replicator.grpc.pb.h"
 
 #define RPC_FAILED 500
@@ -71,3 +71,20 @@ class ReplicatorClient {
  private:
   std::unique_ptr<ReplicatorService::Stub> stub_;
 };
+
+int Propogate(const int op, const uint64_t node_a_id, const uint64_t node_b_id) {
+  int status = 0;
+
+  ReplicatorClient client(grpc::CreateChannel(
+      I2_ADDRESS, grpc::InsecureChannelCredentials()));
+
+  switch (op) {
+    case ADD_NODE: {
+      status = client.SendAddNode(node_a_id);
+      std::cout << "Client received: ADD_NODE" << std::endl;
+      break;
+    }
+  }
+
+  return status;
+}

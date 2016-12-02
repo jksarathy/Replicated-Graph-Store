@@ -33,7 +33,7 @@
 
 #include <grpc++/grpc++.h>
 
-#include "Graph.h"
+#include "headers.h"
 #include "replicator.grpc.pb.h"
 
 using grpc::Server;

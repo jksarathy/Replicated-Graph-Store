@@ -1,95 +1,13 @@
-#include <pthread.h>
-#include <iostream>
-#include <memory>
-
-#include <grpc++/grpc++.h>
-#include "replicator.grpc.pb.h"
-
 #include "mongoose.h"
-#include "Graph.h"
-
-#define RPC_FAILED 500
-
-using grpc::Channel;
-using grpc::ClientContext;
-using grpc::Status;
-using grpc::Server;
-using grpc::ServerBuilder;
-using grpc::ServerContext;
-
-using replicator::Node;
-using replicator::Ack;
-using replicator::ReplicatorService;
-
-#define I2_ADDRESS "104.197.8.216:50051"
-#define I3_ADDRESS "104.198.211.89:50051"
-
-class ReplicatorClient {
- public:
-  ReplicatorClient(std::shared_ptr<Channel> channel)
-      : stub_(ReplicatorService::NewStub(channel)) {}
-
-  int SendAddNode(const uint64_t node_id) {
-    Node node;
-    node.set_node_id(node_id);
-
-    Ack ack;
-
-    ClientContext context;
-
-    Status status = stub_->AddNode(&context, node, &ack);
-
-    if (status.ok()) {
-      return ack.status();
-    } else {
-      std::cout << status.error_code() << ": " << status.error_message()
-                << std::endl;
-      return RPC_FAILED;
-    }
-  }
-
- private:
-  std::unique_ptr<ReplicatorService::Stub> stub_;
-};
-
-class ReplicatorImpl final : public ReplicatorService::Service {
- public:
-  explicit ReplicatorImpl(Graph *g) {
-    graph = g;
-  }
-
-  Status AddNode(ServerContext* context, const Node* node, Ack *ack) override {
-    int status;
-    status = graph->addNode(node->node_id());
-    ack->set_status(status);
-    return Status::OK;
-  }
-
- private:
-  Graph *graph;
-};
-
-void RunServer(Graph *g) {
-  std::string server_address("0.0.0.0:50051");
-  ReplicatorImpl service(g);
-
-  ServerBuilder builder;
-  builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
-  builder.RegisterService(&service);
-  std::unique_ptr<Server> server(builder.BuildAndStart());
-  std::cout << "Server listening on " << server_address << std::endl;
-  server->Wait();
-}
+#include "headers.h"
 
 typedef struct {
   Graph *graph;
-  ReplicatorClient *client;
 } Data;
 
 
 static void add_node(struct mg_connection *nc, struct http_message *hm, void *user_data) {
   Data *data = (Data *) user_data;
-  ReplicatorClient *client = data->client;
   Graph *graph = data->graph;
 
   const char *json = hm->body.p;
@@ -112,7 +30,7 @@ static void add_node(struct mg_connection *nc, struct http_message *hm, void *us
     return;
   }
 
-  status = client->SendAddNode(strtoull(tok->ptr, NULL, 10));
+  status = Propogate(ADD_NODE, strtoull(tok->ptr, NULL, 10), 0);
   if (status == RPC_FAILED) {
     mg_printf(nc, "HTTP/1.1 500 RPC Failed\r\n");
     free(arr);
@@ -141,7 +59,6 @@ static void add_node(struct mg_connection *nc, struct http_message *hm, void *us
 
 static void add_edge(struct mg_connection *nc, struct http_message *hm, void *user_data) {
   Data *data = (Data *) user_data;
-  ReplicatorClient *client = data->client;
   Graph *graph = data->graph;
 
   const char *json = hm->body.p;
@@ -171,7 +88,7 @@ static void add_edge(struct mg_connection *nc, struct http_message *hm, void *us
     return;
   }
 
-  status = graph->addEdge(strtoull(tok->ptr, NULL, 10), strtoull(tok1->ptr, NULL, 10)); 
+  graph->addEdge(strtoull(tok->ptr, NULL, 10), strtoull(tok1->ptr, NULL, 10)); 
 
   //DEBUG
   fprintf(stderr, "add_edge: %s, %s = %d\n", tok->ptr, tok1->ptr, status); 
@@ -581,12 +498,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
   }
 }
 
-void *rpc_server_entry(void *g) {
-  RunServer((Graph *) g);
-
-  return NULL;
-}
-
 int main(int argc, char *argv[]) {
 
   if (argc != 2) {
@@ -596,14 +507,10 @@ int main(int argc, char *argv[]) {
 
   Graph *graph = new Graph();
 
-  // Define Client
-  ReplicatorClient client(grpc::CreateChannel(
-      I2_ADDRESS, grpc::InsecureChannelCredentials()));
-
   // Start RPC Server
   pthread_t rpc_thread;
 
-  if (pthread_create(&rpc_thread, NULL, rpc_server_entry, graph)) {
+  if (pthread_create(&rpc_thread, NULL, RunServer, graph)) {
     fprintf(stderr, "Error creating thread\n");
     return 1;
   }
@@ -611,7 +518,6 @@ int main(int argc, char *argv[]) {
   // HTTP Server
   Data *data = (Data *) malloc(sizeof(Data));
   data->graph = graph;
-  data->client = &client;
 
   struct mg_mgr mgr;
   struct mg_connection *nc;
@@ -631,12 +537,6 @@ int main(int argc, char *argv[]) {
     mg_mgr_poll(&mgr, 1000);
   }
   mg_mgr_free(&mgr);
-
-  // Rejoin RPC Server
-  if(pthread_join(rpc_server_entry, NULL)) {
-    fprintf(stderr, "Error joining thread\n");
-    return 2;
-  }
 
   free(data);
   return 0;
