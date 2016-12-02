@@ -42,8 +42,8 @@ message Node {
 }
 
 message Edge {
-	Node node1 = 1;
-	Node node2 = 2;
+  Node node_a = 1;
+  Node node_b = 2;
 }
 
 message Ack {

@@ -87,15 +87,15 @@ class ReplicatorClient {
   }
 
   int SendAddEdge(const uint64_t node_a_id, const uint64_t node_b_id) {
-    Node node1;
-    node1.set_node_id(node_a_id);
+    Node node_a;
+    node_a.set_node_id(node_a_id);
 
-    Node node2;
-    node2.set_node_id(node_b_id);
+    Node node_b;
+    node_b.set_node_id(node_b_id);
 
     Edge edge;
-    edge.set_node1(node1);
-    edge.set_node2(node2);
+    edge.set_node_a(node_a);
+    edge.set_node_b(node_b);
 
     Ack ack;
 
@@ -113,15 +113,15 @@ class ReplicatorClient {
   }
 
   int SendRemoveEdge(const uint64_t node_a_id, const uint64_t node_b_id) {
-    Node node1;
-    node1.set_node_id(node_a_id);
+    Node node_a;
+    node_a.set_node_id(node_a_id);
 
-    Node node2;
-    node2.set_node_id(node_b_id);
+    Node node_b;
+    node_b.set_node_id(node_b_id);
 
     Edge edge;
-    edge.set_node1(node1);
-    edge.set_node2(node2);
+    edge.set_node_a(node_a);
+    edge.set_node_b(node_b);
 
     Ack ack;
 
