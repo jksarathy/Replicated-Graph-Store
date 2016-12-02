@@ -54,7 +54,7 @@ EXE = cs426_graph_server
 
 HDRS = mongoose.h Graph.h replicator.grpc.pb.h replicator.pb.h
 
-SRCS = cs426_graph_server.cpp mongoose.c Graph.cpp 
+SRCS = cs426_graph_server.c mongoose.c Graph.cpp 
 
 OBJS = $(SRCS:.c=.o) replicator.pb.o replicator.grpc.pb.o 
 
