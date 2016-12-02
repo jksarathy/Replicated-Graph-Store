@@ -59,14 +59,23 @@ static void add_node(struct mg_connection *nc, struct http_message *hm, void *us
 }
 
 static void add_edge(struct mg_connection *nc, struct http_message *hm, void *user_data) {
+
+  fprintf(stderr, "Add_edge: entered\n");
+
   Data *data = (Data *) user_data;
   Graph *graph = data->graph;
+
+  fprintf(stderr, "Add_edge: pulled out graph\n");
+
 
   const char *json = hm->body.p;
   int json_len = (int) hm->body.len;
 
   struct json_token *arr, *tok, *tok1;
   int status = 0;
+
+  fprintf(stderr, "Add_edge: about to parse\n");
+
 
   arr = parse_json2(json, json_len);
   if (arr == NULL) {
@@ -75,12 +84,18 @@ static void add_edge(struct mg_connection *nc, struct http_message *hm, void *us
     return;
   }
 
+  fprintf(stderr, "Add_edge: parsed json\n");
+
+
   tok = find_json_token(arr, "node_a_id");
   if (tok == NULL) {
     mg_printf(nc, "Could not find node_a_id in JSON\n");
     free(arr);
     return;
   }
+
+  fprintf(stderr, "Add_edge: found json\n");
+
 
   tok1 = find_json_token(arr, "node_b_id");
   if (tok1 == NULL) {
@@ -89,7 +104,13 @@ static void add_edge(struct mg_connection *nc, struct http_message *hm, void *us
     return;
   }
 
+  fprintf(stderr, "Add_edge: found json2\n");
+
+
   status = propogate(ADD_EDGE, strtoull(tok->ptr, NULL, 10), strtoull(tok1->ptr, NULL, 10));
+
+  fprintf(stderr, "Add_edge: called propogate\n");
+
   if (status == RPC_FAILED) {
     mg_printf(nc, "HTTP/1.1 500 RPC Failed\r\n");
     fprintf(stderr, "add_edge: %.*s, %.*s = %d\n", tok->len, tok->ptr, tok1->len, tok1->ptr, status);
@@ -97,7 +118,13 @@ static void add_edge(struct mg_connection *nc, struct http_message *hm, void *us
     return;
   }
 
+  fprintf(stderr, "Add_edge: propogate succeeded\n");
+
+
   graph->addEdge(strtoull(tok->ptr, NULL, 10), strtoull(tok1->ptr, NULL, 10)); 
+
+  fprintf(stderr, "Add_edge: added edge to graph\n");
+
 
   //DEBUG
   fprintf(stderr, "add_edge: %.*s, %.*s = %d\n", tok->len, tok->ptr, tok1->len, tok1->ptr, status); 
