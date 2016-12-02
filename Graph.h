@@ -1,7 +1,3 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <map>
 #include <set>
 #include <list>
@@ -33,7 +29,4 @@ extern "C" {
 	};
 
 
-#ifdef __cplusplus
-}
-#endif
 
