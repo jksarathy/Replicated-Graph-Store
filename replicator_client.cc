@@ -39,6 +39,7 @@ using grpc::Channel;
 using grpc::ClientContext;
 using grpc::Status;
 using replicator::Node;
+using replicator::Edge;
 using replicator::Ack;
 using replicator::ReplicatorService;
 

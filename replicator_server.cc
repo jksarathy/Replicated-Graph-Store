@@ -41,6 +41,7 @@ using grpc::ServerBuilder;
 using grpc::ServerContext;
 using grpc::Status;
 using replicator::Node;
+using replicator::Edge;
 using replicator::Ack;
 using replicator::ReplicatorService;
 
