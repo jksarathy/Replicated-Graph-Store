@@ -554,7 +554,7 @@ int main(int argc, char *argv[]) {
       {
       case 'b':
         bflag = 1;
-        ip_next = optarg
+        ip_next = optarg;
         break;
       case '?':
         if (optopt == 'b')
@@ -617,7 +617,7 @@ int main(int argc, char *argv[]) {
   mg_mgr_free(&mgr);
 
   // Free 
-  free(data)
+  free(data);
 
   return 0;
 }
