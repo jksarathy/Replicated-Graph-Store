@@ -30,7 +30,7 @@ static void add_node(struct mg_connection *nc, struct http_message *hm, void *us
     return;
   }
 
-  status = Propogate(ADD_NODE, strtoull(tok->ptr, NULL, 10), 0);
+  status = propogate(ADD_NODE, strtoull(tok->ptr, NULL, 10), 0);
   if (status == RPC_FAILED) {
     mg_printf(nc, "HTTP/1.1 500 RPC Failed\r\n");
     fprintf(stderr, "add_node: %.*s = %d\n", tok->len, tok->ptr, status);
@@ -41,7 +41,7 @@ static void add_node(struct mg_connection *nc, struct http_message *hm, void *us
   status = graph->addNode(strtoull(tok->ptr, NULL, 10)); 
 
   //DEBUG
-  fprintf(stderr, "add_node: %s = %d\n", tok->ptr, status); 
+  fprintf(stderr, "add_node: %.*s = %d\n", tok->len, tok->ptr, status); 
 
   if (status == SUCCESS) {
     mg_printf(nc, "HTTP/1.1 %d OK\r\n"
@@ -89,10 +89,18 @@ static void add_edge(struct mg_connection *nc, struct http_message *hm, void *us
     return;
   }
 
+  status = propogate(ADD_EDGE, strtoull(tok->ptr, NULL, 10), strtoull(tok1->ptr, NULL, 10));
+  if (status == RPC_FAILED) {
+    mg_printf(nc, "HTTP/1.1 500 RPC Failed\r\n");
+    fprintf(stderr, "add_edge: %.*s, %.*s = %d\n", tok->len, tok->ptr, tok1->len, tok1->ptr, status);
+    free(arr);
+    return;
+  }
+
   graph->addEdge(strtoull(tok->ptr, NULL, 10), strtoull(tok1->ptr, NULL, 10)); 
 
   //DEBUG
-  fprintf(stderr, "add_edge: %s, %s = %d\n", tok->ptr, tok1->ptr, status); 
+  fprintf(stderr, "add_edge: %.*s, %.*s = %d\n", tok->len, tok->ptr, tok1->len, tok1->ptr, status); 
 
   if (status == SUCCESS) {
     mg_printf(nc, "HTTP/1.1 %d OK\r\n"
@@ -134,10 +142,18 @@ static void remove_node(struct mg_connection *nc, struct http_message *hm, void 
     return;
   }
 
+  status = propogate(REMOVE_NODE, strtoull(tok->ptr, NULL, 10), 0);
+  if (status == RPC_FAILED) {
+    mg_printf(nc, "HTTP/1.1 500 RPC Failed\r\n");
+    fprintf(stderr, "remove_node: %.*s = %d\n", tok->len, tok->ptr, status);
+    free(arr);
+    return;
+  }
+
   status = graph->removeNode(strtoull(tok->ptr, NULL, 10)); 
 
   //DEBUG
-  fprintf(stderr, "remove_node: %s = %d\n", tok->ptr, status);
+  fprintf(stderr, "remove_node: %.*s = %d\n", tok->len, tok->ptr, status);
 
   if (status == SUCCESS) {
     mg_printf(nc, "HTTP/1.1 %d OK\r\n"
@@ -187,10 +203,18 @@ static void remove_edge(struct mg_connection *nc, struct http_message *hm, void 
     return;
   }
 
+  status = propogate(REMOVE_EDGE, strtoull(tok->ptr, NULL, 10), strtoull(tok1->ptr, NULL, 10));
+  if (status == RPC_FAILED) {
+    mg_printf(nc, "HTTP/1.1 500 RPC Failed\r\n");
+    fprintf(stderr, "remove_edge: %.*s, %.*s = %d\n", tok->len, tok->ptr, tok1->len, tok1->ptr, status);
+    free(arr);
+    return;
+  }
+
   status = graph->removeEdge(strtoull(tok->ptr, NULL, 10), strtoull(tok1->ptr, NULL, 10)); 
 
   //DEBUG
-  fprintf(stderr, "remove_edge: %s, %s = %d\n", tok->ptr, tok1->ptr, status);
+  fprintf(stderr, "remove_edge: %.*s, %.*s = %d\n", tok->len, tok->ptr, tok1->len, tok1->ptr, status);
 
   if (status == SUCCESS) {
     mg_printf(nc, "HTTP/1.1 %d OK\r\n"

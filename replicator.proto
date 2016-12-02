@@ -32,6 +32,9 @@ package replicator;
 
 service ReplicatorService {
   rpc AddNode(Node) returns (Ack) {}
+  rpc RemoveNode(Node) returns (Ack) {}
+  rpc AddEdge(Node, Node) returns (Ack) {}
+  rpc RemoveEdge(Node, Node) returns (Ack) {}
 }
 
 message Node {

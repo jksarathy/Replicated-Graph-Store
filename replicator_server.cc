@@ -59,6 +59,33 @@ class ReplicatorImpl final : public ReplicatorService::Service {
     return Status::OK;
   }
 
+  Status RemoveNode(ServerContext* context, const Node* node, Ack *ack) override {
+    std::cout << "Server removing node: " << node->node_id() << std::endl;
+
+    int status;
+    status = graph->removeNode(node->node_id());
+    ack->set_status(status);
+    return Status::OK;
+  }
+
+  Status AddEdge(ServerContext* context, const Node* node1, const Node* node2, Ack *ack) override {
+    std::cout << "Server adding edge: " << node1->node_id() << ", " << node2->node_id() << std::endl;
+
+    int status;
+    status = graph->addEdge(node1->node_id(), node2->node_id());
+    ack->set_status(status);
+    return Status::OK;
+  }
+
+  Status RemoveEdge(ServerContext* context, const Node* node, const Node* node2, Ack *ack) override {
+    std::cout << "Server removing edge: " << node1->node_id() << ", " << node2->node_id() << std::endl;
+
+    int status;
+    status = graph->removeEdge(node1->node_id(), node2->node_id());
+    ack->set_status(status);
+    return Status::OK;
+  }
+
  private:
   Graph *graph;
 };

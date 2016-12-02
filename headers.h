@@ -19,6 +19,6 @@
 #endif
 
 EXTERNC void *RunServer(void *);
-EXTERNC int Propogate(const int, const uint64_t, const uint64_t);
+EXTERNC int propogate(const int, const uint64_t, const uint64_t);
 
 #undef EXTERNC

@@ -35,8 +35,6 @@
 #include <grpc++/grpc++.h>
 #include "replicator.grpc.pb.h"
 
-#define RPC_FAILED 500
-
 using grpc::Channel;
 using grpc::ClientContext;
 using grpc::Status;
@@ -68,11 +66,74 @@ class ReplicatorClient {
     }
   }
 
+  int SendRemoveNode(const uint64_t node_id) {
+    Node node;
+    node.set_node_id(node_id);
+
+    Ack ack;
+
+    ClientContext context;
+
+    Status status = stub_->RemoveNode(&context, node, &ack);
+
+    if (status.ok()) {
+      return ack.status();
+    } else {
+      std::cout << status.error_code() << ": " << status.error_message()
+                << std::endl;
+      return RPC_FAILED;
+    }
+  }
+
+  int SendAddEdge(const uint64_t node_a_id, const uint64_t node_b_id) {
+    Node node1;
+    node1.set_node_id(node_a_id);
+
+    Node node2;
+    node2.set_node_id(node_b_id);
+
+    Ack ack;
+
+    ClientContext context;
+
+    Status status = stub_->AddEdge(&context, node1, node2, &ack);
+
+    if (status.ok()) {
+      return ack.status();
+    } else {
+      std::cout << status.error_code() << ": " << status.error_message()
+                << std::endl;
+      return RPC_FAILED;
+    }
+  }
+
+  int SendRemoveEdge(const uint64_t node_a_id, const uint64_t node_b_id) {
+    Node node1;
+    node1.set_node_id(node_a_id);
+
+    Node node2;
+    node2.set_node_id(node_b_id);
+
+    Ack ack;
+
+    ClientContext context;
+
+    Status status = stub_->RemoveEdge(&context, node1, node2, &ack);
+
+    if (status.ok()) {
+      return ack.status();
+    } else {
+      std::cout << status.error_code() << ": " << status.error_message()
+                << std::endl;
+      return RPC_FAILED;
+    }
+  }
+
  private:
   std::unique_ptr<ReplicatorService::Stub> stub_;
 };
 
-int Propogate(const int op, const uint64_t node_a_id, const uint64_t node_b_id) {
+int propogate(const int op, const uint64_t node_a_id, const uint64_t node_b_id) {
   int status = 0;
 
   ReplicatorClient client(grpc::CreateChannel(
@@ -84,9 +145,24 @@ int Propogate(const int op, const uint64_t node_a_id, const uint64_t node_b_id) 
       std::cout << "Client received: ADD_NODE" << std::endl;
       break;
     }
+    case REMOVE_NODE: {
+      status = client.SendRemoveNode(node_a_id);
+      std::cout << "Client received: REMOVE_NODE" << std::endl;
+      break;
+    }
+    case ADD_EDGE: {
+      status = client.SendAddEdge(node_a_id, node_b_id);
+      std::cout << "Client received: ADD_EDGE" << std::endl;
+      break;
+    }
+    case REMOVE_EDGE: {
+      status = client.SendRemoveEdge(node_a_id, node_b_id);
+      std::cout << "Client received: REMOVE_EDGE" << std::endl;
+      break;
+    }
   }
 
-  std::cout << "Client call status: " << status << std::endl;
+  std::cout << "Client received status: " << status << std::endl;
 
   return status;
 }
