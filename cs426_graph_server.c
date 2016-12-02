@@ -33,6 +33,7 @@ static void add_node(struct mg_connection *nc, struct http_message *hm, void *us
   status = Propogate(ADD_NODE, strtoull(tok->ptr, NULL, 10), 0);
   if (status == RPC_FAILED) {
     mg_printf(nc, "HTTP/1.1 500 RPC Failed\r\n");
+    fprintf(stderr, "add_node: %.*s = %d\n", tok->len, tok->ptr, status);
     free(arr);
     return;
   }
